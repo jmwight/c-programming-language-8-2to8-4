@@ -41,3 +41,5 @@ extern int _flushbuf(int, FILE *);
 
 #define getchar()	getc(stdin)
 #define putchar(x)	putc((x), stdout)
+
+FILE *fopen(char *name, char *mode);

@@ -24,9 +24,10 @@ int _fillbuf(FILE *fp)
 		fp->cnt = 0;
 		return EOF;
 	}
-	return (unsigned char) *fp->ptr++;		
+	return (unsigned char) *fp->ptr++;
 }
 
+/* fopen: open file, return file ptr */
 FILE *fopen(char *name, char *mode)
 {
 	int fd;
