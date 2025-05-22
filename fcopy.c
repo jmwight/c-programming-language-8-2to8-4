@@ -5,10 +5,11 @@ void filecopy(FILE *ifp, FILE *ofp);
 
 int main(int argc, char **argv)
 {
+	initstdio();
 	FILE *ifp, *ofp;
        	ifp = fopen(*++argv, "r");
 	ofp = fopen(*++argv, "w");
-	ofp = stdout;
+	//ofp = stdout;
 	filecopy(ifp, ofp);
 	_flushbuf(EOF, stdout);
 }

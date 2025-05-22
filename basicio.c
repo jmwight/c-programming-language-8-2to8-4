@@ -3,7 +3,7 @@
 #include "syscalls.h" /* XXX: figure out if I need to create this header or get rid of */
 #define PERMS	0666	/* RW for owner, group, others */
 
-static void _seterror(int r, FILE *fp);
+//static void _seterror(int r, FILE *fp);
 
 FILE _iob[OPEN_MAX];
 
@@ -36,35 +36,49 @@ int _flushbuf(int c, FILE *fp)
 {
 	if((fp->flag & _WRITE|_EOF|_ERR) != _WRITE)
 		return EOF;
-	else if(!(fp->flag & _UNBUF))
+	size_t bufsize = fp->flag & _UNBUF ? 1 : BUFSIZ;
+	if(fp->base == NULL)
 	{
+		if((fp->base = malloc(bufsize)) == NULL)
+			return EOF;
+	}
+	else
+	{
+		/* write buffer (not the extra character (if there is one)) */
 		int written;
-		written = write(fp->fd, fp->base, fp->cnt); /*write the buffer*/
-		_seterror(written, fp);
+		written = write(fp->fd, fp->base, bufsize - fp->cnt);
+		if(written < 0)
+			if(written == -1)
+				fp->flag |= _EOF;
+			else
+				fp->flag |= _ERR;
 	}
 
-	/* write the last character that didn't fit into buffer */
-	if(c != EOF)
-	{
-		int w = write(fp->fd, &c, 1);
-		_seterror(w, fp);
-	}
-
-	/* reset the buffer in file */
-	fp->cnt = 0;
+	/* reset ptr and base */
+	fp->cnt = bufsize;
 	fp->ptr = fp->base;
-	return EOF;
+
+	/* add the last character that didn't fit into buffer before  */
+	/* XXX: when we write our fclose function we will need to remember to run _flushbuf
+	 * twice! This extra character is added to new buffer not written immediately. This will
+	 * probably be faster in long run than running two write commands back to back just to get
+	 * out that extra character but need to remember this! */
+	if(c != EOF)
+		*fp->ptr++ = c;
+
+	return (unsigned char) *fp->ptr; /* TODO: figure out something better to return */
 }
 
+/* temporarily commenting this out not sure if I need it anymore for _flushbuf */
 /* _seterror: set error if needed based on what write returns */
-static void _seterror(int r, FILE *fp)
+/*static void _seterror(int r, FILE *fp)
 {
-	/* set error or end of file bits if write had an issue */
+	// set error or end of file bits if write had an issue
 	if(r == -1)
 		fp->flag |= _EOF;
 	else if(r < fp->cnt)
 		fp->flag |= _ERR;
-}
+} */
 
 /* initializes stdin, stdout, and stderr */
 void initstdio(void)
