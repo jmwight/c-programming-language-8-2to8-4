@@ -34,7 +34,7 @@ int _fillbuf(FILE *fp)
 
 int _flushbuf(int c, FILE *fp)
 {
-	if((fp->flag & _WRITE|_EOF|_ERR) != _WRITE)
+	if((fp->flag & (_WRITE|_EOF|_ERR)) != _WRITE)
 		return EOF;
 	size_t bufsize = fp->flag & _UNBUF ? 1 : BUFSIZ;
 	if(fp->base == NULL)
