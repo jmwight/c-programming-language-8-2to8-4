@@ -69,17 +69,6 @@ int _flushbuf(int c, FILE *fp)
 	return (unsigned char) *fp->ptr; /* TODO: figure out something better to return */
 }
 
-/* temporarily commenting this out not sure if I need it anymore for _flushbuf */
-/* _seterror: set error if needed based on what write returns */
-/*static void _seterror(int r, FILE *fp)
-{
-	// set error or end of file bits if write had an issue
-	if(r == -1)
-		fp->flag |= _EOF;
-	else if(r < fp->cnt)
-		fp->flag |= _ERR;
-} */
-
 /* initializes stdin, stdout, and stderr */
 void initstdio(void)
 {
