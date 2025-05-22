@@ -120,3 +120,26 @@ FILE *fopen(char *name, char *mode)
 	fp->flag = (*mode == 'r') ? _READ : _WRITE;
 	return fp;
 }
+
+FILE *fclose(FILE *fp)
+{
+	/* set everything to NULL or 0 */
+	fp->base = NULL;
+	fp->ptr = NULL;
+	fp->cnt = 0;
+	fp->flags = 0;
+
+	/* set flags to just _EOF */
+	fp->flags |= _EOF;
+	fp->cnt = 0;
+
+	close(fp->fd); /* close filestream with file descriptor */
+	free(fp->base); /* free memory for buffer */
+
+	if(close(fp->fd) == -1) /* close filestream with file descriptor */
+	{
+		fp->flags |= _ERR;
+		return EOF;
+	}
+	return 0;
+}
