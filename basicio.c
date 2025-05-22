@@ -1,6 +1,9 @@
 #include <fcntl.h>
-#include "syscalls.h"
+#include "basicio.h"
+#include "syscalls.h" /* XXX: figure out if I need to create this header or get rid of */
 #define PERMS	0666	/* RW for owner, group, others */
+
+static void _seterror(int r, FILE *fp);
 
 /* _fillbuf: allocate and fill input buffer */
 int _fillbuf(FILE *fp)
@@ -27,6 +30,39 @@ int _fillbuf(FILE *fp)
 	return (unsigned char) *fp->ptr++;
 }
 
+int _flushbuf(int c, FILE *fp)
+{
+	if((fp->flag & _WRITE|_EOF|_ERR) != _WRITE)
+		return EOF;
+	else if(!(fp->flag & _UNBUF))
+	{
+		int written;
+		written = write(fp->fd, fp->base, fp->cnt); /*write the buffer*/
+		_seterror(written, fp);
+	}
+
+	/* write the last character that didn't fit into buffer */
+	if(c != NULL)
+	{
+		int w = write(fp->fd, &c, 1);
+		_seterror(w, fp);
+	}
+
+	/* reset the buffer in file */
+	fp->cnt = 0;
+	fp->ptr = fp->base;
+}
+
+/* _seterror: set error if needed based on what write returns */
+static void _seterror(int r, FILE *fp)
+{
+	/* set error or end of file bits if write had an issue */
+	if(r == -1)
+		fp->flag |= _EOF;
+	else if(r < fp->cnt)
+		fp->flag |= _ERR;
+}
+
 /* fopen: open file, return file ptr */
 FILE *fopen(char *name, char *mode)
 {
@@ -35,7 +71,7 @@ FILE *fopen(char *name, char *mode)
 
 	if(*mode != 'r' && *mode != 'w' && *mode != 'a')
 		return NULL;
-	for(fp = _iob; fp < _iob _ OPEN_MAX; fp++)
+	for(fp = _iob; fp < _iob + OPEN_MAX; fp++)
 		if((fp->flag & (_READ|_WRITE)) == 0)
 			break; /* foudn free slot */
 	if(fp >= _iob + OPEN_MAX) /* no free slots */
