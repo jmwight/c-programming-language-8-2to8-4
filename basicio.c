@@ -5,6 +5,8 @@
 
 static void _seterror(int r, FILE *fp);
 
+FILE _iob[OPEN_MAX];
+
 /* _fillbuf: allocate and fill input buffer */
 int _fillbuf(FILE *fp)
 {
@@ -42,7 +44,7 @@ int _flushbuf(int c, FILE *fp)
 	}
 
 	/* write the last character that didn't fit into buffer */
-	if(c != NULL)
+	if(c != EOF)
 	{
 		int w = write(fp->fd, &c, 1);
 		_seterror(w, fp);
@@ -73,7 +75,10 @@ FILE *fopen(char *name, char *mode)
 		return NULL;
 	for(fp = _iob; fp < _iob + OPEN_MAX; fp++)
 		if((fp->flag & (_READ|_WRITE)) == 0)
+		{
+			printf("Found slot at %d\n", fp - _iob);
 			break; /* foudn free slot */
+		}
 	if(fp >= _iob + OPEN_MAX) /* no free slots */
 		return NULL;
 
