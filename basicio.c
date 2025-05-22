@@ -53,6 +53,7 @@ int _flushbuf(int c, FILE *fp)
 	/* reset the buffer in file */
 	fp->cnt = 0;
 	fp->ptr = fp->base;
+	return EOF;
 }
 
 /* _seterror: set error if needed based on what write returns */
@@ -65,6 +66,25 @@ static void _seterror(int r, FILE *fp)
 		fp->flag |= _ERR;
 }
 
+/* initializes stdin, stdout, and stderr */
+void initstdio(void)
+{
+	/* set the stuff that is the same for each */
+	FILE *fp;
+	for(fp = _iob; fp < _iob + 3; fp++)
+	{
+		fp->cnt = 0;
+		fp->base = malloc(BUFSIZ);
+		fp->ptr = fp->base;
+		fp->fd = fp - _iob;
+	}
+
+	/* set flags */
+	_iob[0].flag = _READ; /* stdin */
+	_iob[1].flag = _WRITE; /* stdout */
+	_iob[2].flag = _WRITE; /* stderr */
+}
+
 /* fopen: open file, return file ptr */
 FILE *fopen(char *name, char *mode)
 {
@@ -75,10 +95,7 @@ FILE *fopen(char *name, char *mode)
 		return NULL;
 	for(fp = _iob; fp < _iob + OPEN_MAX; fp++)
 		if((fp->flag & (_READ|_WRITE)) == 0)
-		{
-			printf("Found slot at %d\n", fp - _iob);
 			break; /* foudn free slot */
-		}
 	if(fp >= _iob + OPEN_MAX) /* no free slots */
 		return NULL;
 

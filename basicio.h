@@ -29,6 +29,7 @@ enum _flags
 
 extern int _fillbuf(FILE *);
 extern int _flushbuf(int, FILE *);
+extern void initstdio(void);
 
 #define feof(p)		(((p)->flag & _EOF) != 0)
 #define ferror(p)	(((p)->flag & _ERR) != 0)
