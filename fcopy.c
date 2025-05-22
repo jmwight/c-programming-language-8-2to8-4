@@ -1,17 +1,24 @@
 #include "basicio.h"
+#include <unistd.h>
+
+void filecopy(FILE *ifp, FILE *ofp);
 
 int main(int argc, char **argv)
 {
 	FILE *ifp, *ofp;
        	ifp = fopen(*++argv, "r");
-	ofp = foepn(*++argv, "w");
+	ofp = fopen(*++argv, "w");
+	ofp = stdout;
 	filecopy(ifp, ofp);
+	_flushbuf(EOF, stdout);
 }
+
 /* filecopy: copy file ifp to file ofp */
 void filecopy(FILE *ifp, FILE *ofp)
 {
 	int c;
 
 	while((c = getc(ifp)) != EOF)
-		putc(c, ofp);
+		putc(ofp, c);
+		//write(1, &c, 1);
 }
