@@ -21,5 +21,4 @@ void filecopy(FILE *ifp, FILE *ofp)
 
 	while((c = getc(ifp)) != EOF)
 		putc(ofp, c);
-		//write(1, &c, 1);
 }
