@@ -73,6 +73,11 @@ int fflush(FILE *fp)
 	return _flushbuf(EOF, fp);
 }
 
+int fseek(FILE *fp, long ofs, int wh)
+{
+	return lseek(fp->fd, (off_t) ofs, wh);
+}
+
 /* initializes stdin, stdout, and stderr */
 void initstdio(void)
 {

@@ -47,6 +47,7 @@ extern int _flushbuf(int, FILE *);
 
 extern void initstdio(void);
 extern int fflush(FILE *stream);
+extern int fseek(FILE *stream, long offset, int whence);
 extern FILE *fopen(char *name, char *mode);
 extern int fclose(FILE *stream);
 
