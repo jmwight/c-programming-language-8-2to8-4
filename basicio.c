@@ -23,9 +23,9 @@ int _fillbuf(FILE *fp)
 	if(--fp->cnt < 0)
 	{
 		if(fp->cnt == -1)
-			fp->flag |= (_WRITE|_EOF);
+			fp->flag |= _EOF;
 		else
-			fp->flag |= (_WRITE|_ERR);
+			fp->flag |= _ERR;
 		fp->cnt = 0;
 		return EOF;
 	}
