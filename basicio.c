@@ -23,9 +23,9 @@ int _fillbuf(FILE *fp)
 	if(--fp->cnt < 0)
 	{
 		if(fp->cnt == -1)
-			fp->flag |= _EOF;
+			fp->flag |= (_WRITE|_EOF);
 		else
-			fp->flag |= _ERR;
+			fp->flag |= (_WRITE|_ERR);
 		fp->cnt = 0;
 		return EOF;
 	}
@@ -123,6 +123,10 @@ FILE *fopen(char *name, char *mode)
 
 int fclose(FILE *fp)
 {
+	/* flush buffer if it's write and not EOF or ERR */
+	if(fp->flag & _WRITE && !(fp->flag & (_EOF|_ERR)))
+		_flushbuf(EOF, fp);
+
 	/* set everything to NULL or 0 */
 	fp->base = NULL;
 	fp->ptr = NULL;
