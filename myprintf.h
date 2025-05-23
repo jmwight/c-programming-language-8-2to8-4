@@ -1,6 +1,6 @@
 #ifndef MYPRINTF_H
 #define MYPRINTF_H	1
 
-myprintf(char *, ...);
+int myprintf(char *, ...);
 
 #endif
