@@ -1,3 +1,6 @@
+#ifndef BASICIO_H
+#define BASICIO_H	1
+
 #define NULL		0
 #define	EOF		(-1)
 #define	BUFSIZ		1024
@@ -46,3 +49,5 @@ extern void initstdio(void);
 extern int fflush(FILE *stream);
 extern FILE *fopen(char *name, char *mode);
 extern int fclose(FILE *stream);
+
+#endif /* BASICIO_H */
