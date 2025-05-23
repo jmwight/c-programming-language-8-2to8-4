@@ -9,9 +9,9 @@ int main(int argc, char **argv)
 	FILE *ifp, *ofp;
        	ifp = fopen(*++argv, "r");
 	ofp = fopen(*++argv, "w");
-	//ofp = stdout;
 	filecopy(ifp, ofp);
-	_flushbuf(EOF, stdout);
+	fclose(ifp);
+	fclose(ofp);
 }
 
 /* filecopy: copy file ifp to file ofp */
