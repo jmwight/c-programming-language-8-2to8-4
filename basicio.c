@@ -1,6 +1,6 @@
 #include <fcntl.h>
 #include "basicio.h"
-#include "syscalls.h" /* XXX: figure out if I need to create this header or get rid of */
+#include "syscalls.h" /* to match example in book, don't think in modern day this is needed */
 #define PERMS	0666	/* RW for owner, group, others */
 
 //static void _seterror(int r, FILE *fp);
@@ -32,6 +32,7 @@ int _fillbuf(FILE *fp)
 	return (unsigned char) *fp->ptr++;
 }
 
+/* _flushbuf: flushes buffer to stream. Allocates buffer if needed */
 int _flushbuf(int c, FILE *fp)
 {
 	if((fp->flag & (_WRITE|_EOF|_ERR)) != _WRITE)
@@ -68,11 +69,13 @@ int _flushbuf(int c, FILE *fp)
 	return 0; /* TODO: figure out something better to return */
 }
 
+/* fflush: wrapper function for _flushbuf to match standard library */
 int fflush(FILE *fp)
 {
 	return _flushbuf(EOF, fp);
 }
 
+/* fseek: wrapper function for lseek to match standard library */
 int fseek(FILE *fp, long ofs, int wh)
 {
 	return lseek(fp->fd, (off_t) ofs, wh);
@@ -107,7 +110,7 @@ FILE *fopen(char *name, char *mode)
 		return NULL;
 	for(fp = _iob; fp < _iob + OPEN_MAX; fp++)
 		if((fp->flag & (_READ|_WRITE)) == 0)
-			break; /* foudn free slot */
+			break; /* found free slot */
 	if(fp >= _iob + OPEN_MAX) /* no free slots */
 		return NULL;
 
