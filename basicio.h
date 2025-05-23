@@ -45,7 +45,10 @@ extern int _flushbuf(int, FILE *);
 #define getchar()	getc(stdin)
 #define putchar(x)	putc((x), stdout)
 
-extern void initstdio(void);
+extern void initstdio(void) __attribute__ ((constructor)); /* attribute constructor allows me
+							      to not explicitly have to write
+							      initstdio in main, it will run
+							      before main! */
 extern int fflush(FILE *stream);
 extern int fseek(FILE *stream, long offset, int whence);
 extern FILE *fopen(char *name, char *mode);

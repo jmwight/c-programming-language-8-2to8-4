@@ -5,7 +5,6 @@ void filecopy(FILE *ifp, FILE *ofp);
 
 int main(int argc, char **argv)
 {
-	initstdio(); /* see if there is a way to have this function run before main */
 	FILE *ifp, *ofp;
        	ifp = fopen(*++argv, "r");
 	ofp = fopen(*++argv, "w");
