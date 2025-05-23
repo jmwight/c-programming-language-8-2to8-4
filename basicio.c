@@ -12,9 +12,9 @@ int _fillbuf(FILE *fp)
 {
 	int bufsize;
 
-	if((fp->flag & (_READ|_EOF|_ERR)) != _READ)
+	if(!fp->flag.read || fp->flag.eof || fp->flag.err)
 		return EOF;
-	bufsize = (fp->flag & _UNBUF) ? 1 : BUFSIZ;
+	bufsize = fp->flag.unbuf ? 1 : BUFSIZ;
 	if(fp->base == NULL)		/* no buffer yet */
 		if((fp->base = (char *) malloc(bufsize)) == NULL)
 			return EOF;	/* can't get buffer */
@@ -23,9 +23,9 @@ int _fillbuf(FILE *fp)
 	if(--fp->cnt < 0)
 	{
 		if(fp->cnt == -1)
-			fp->flag |= (_WRITE|_EOF);
+			fp->flag.eof = 1;
 		else
-			fp->flag |= (_WRITE|_ERR);
+			fp->flag.err = 1;
 		fp->cnt = 0;
 		return EOF;
 	}
@@ -34,9 +34,9 @@ int _fillbuf(FILE *fp)
 
 int _flushbuf(int c, FILE *fp)
 {
-	if((fp->flag & (_WRITE|_EOF|_ERR)) != _WRITE)
+	if(!fp->flag.write || fp->flag.err || fp->flag.err)
 		return EOF;
-	size_t bufsize = fp->flag & _UNBUF ? 1 : BUFSIZ;
+	size_t bufsize = fp->flag.unbuf ? 1 : BUFSIZ;
 	if(fp->base == NULL)
 	{
 		if((fp->base = malloc(bufsize)) == NULL)
@@ -49,9 +49,9 @@ int _flushbuf(int c, FILE *fp)
 		written = write(fp->fd, fp->base, bufsize - fp->cnt);
 		if(written < 0)
 			if(written == -1)
-				fp->flag |= _EOF;
+				fp->flag.eof = 1;
 			else
-				fp->flag |= _ERR;
+				fp->flag.err = 1;
 	}
 
 	/* reset ptr and base */
@@ -87,9 +87,9 @@ void initstdio(void)
 	}
 
 	/* set flags */
-	_iob[0].flag = _READ; /* stdin */
-	_iob[1].flag = _WRITE; /* stdout */
-	_iob[2].flag = _WRITE; /* stderr */
+	_iob[0].flag.read = 1; /* stdin */
+	_iob[1].flag.write = 1; /* stdout */
+	_iob[2].flag.write = 1; /* stderr */
 }
 
 /* fopen: open file, return file ptr */
@@ -101,7 +101,7 @@ FILE *fopen(char *name, char *mode)
 	if(*mode != 'r' && *mode != 'w' && *mode != 'a')
 		return NULL;
 	for(fp = _iob; fp < _iob + OPEN_MAX; fp++)
-		if((fp->flag & (_READ|_WRITE)) == 0)
+		if(fp->flag.read == 0 && fp->flag.write == 0)
 			break; /* foudn free slot */
 	if(fp >= _iob + OPEN_MAX) /* no free slots */
 		return NULL;
@@ -121,24 +121,27 @@ FILE *fopen(char *name, char *mode)
 	fp->fd = fd;
 	fp->cnt = 0;
 	fp->base = NULL;
-	fp->flag = (*mode == 'r') ? _READ : _WRITE;
+	fp->flag.read = (*mode == 'r') ? 1 : 0;
+	fp->flag.write = (*mode == 'w') ? 1 : 0;
 	return fp;
 }
 
 int fclose(FILE *fp)
 {
 	/* flush buffer if it's write and not EOF or ERR */
-	if(fp->flag & _WRITE && !(fp->flag & (_EOF|_ERR)))
+	if(fp->flag.write == 1 && fp->flag.eof == 0 && fp->flag.err == 0)
 		_flushbuf(EOF, fp);
 
 	/* set everything to NULL or 0 */
 	fp->base = NULL;
 	fp->ptr = NULL;
 	fp->cnt = 0;
-	fp->flag = 0;
+	fp->flag.read = 0;
+	fp->flag.write = 0;
+	fp->flag.unbuf = 0;
 
 	/* set flags to just _EOF */
-	fp->flag |= _EOF;
+	fp->flag.eof = 1;
 	fp->cnt = 0;
 
 	close(fp->fd); /* close filestream with file descriptor */
@@ -146,7 +149,7 @@ int fclose(FILE *fp)
 
 	if(close(fp->fd) == -1) /* close filestream with file descriptor */
 	{
-		fp->flag |= _ERR;
+		fp->flag.err = 1;
 		return EOF;
 	}
 	return 0;
