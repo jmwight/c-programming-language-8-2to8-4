@@ -60,7 +60,10 @@ int _flushbuf(int c, FILE *fp)
 
 	/* add the last character that didn't fit into buffer before  */
 	if(c != EOF)
+	{
 		*fp->ptr++ = c;
+		--fp->cnt;
+	}
 
 	return (unsigned char) *fp->ptr; /* TODO: figure out something better to return */
 }
