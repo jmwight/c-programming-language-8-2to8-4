@@ -30,7 +30,6 @@ enum _flags
 extern int _fillbuf(FILE *);
 extern int _flushbuf(int, FILE *);
 extern void initstdio(void);
-extern int fclose(FILE *);
 
 #define feof(p)		(((p)->flag & _EOF) != 0)
 #define ferror(p)	(((p)->flag & _ERR) != 0)
@@ -44,4 +43,5 @@ extern int fclose(FILE *);
 #define getchar()	getc(stdin)
 #define putchar(x)	putc((x), stdout)
 
-FILE *fopen(char *name, char *mode);
+extern FILE *fopen(char *name, char *mode);
+extern int fclose(FILE *);

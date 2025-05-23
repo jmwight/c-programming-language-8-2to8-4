@@ -121,16 +121,16 @@ FILE *fopen(char *name, char *mode)
 	return fp;
 }
 
-FILE *fclose(FILE *fp)
+int fclose(FILE *fp)
 {
 	/* set everything to NULL or 0 */
 	fp->base = NULL;
 	fp->ptr = NULL;
 	fp->cnt = 0;
-	fp->flags = 0;
+	fp->flag = 0;
 
 	/* set flags to just _EOF */
-	fp->flags |= _EOF;
+	fp->flag |= _EOF;
 	fp->cnt = 0;
 
 	close(fp->fd); /* close filestream with file descriptor */
@@ -138,7 +138,7 @@ FILE *fclose(FILE *fp)
 
 	if(close(fp->fd) == -1) /* close filestream with file descriptor */
 	{
-		fp->flags |= _ERR;
+		fp->flag |= _ERR;
 		return EOF;
 	}
 	return 0;
