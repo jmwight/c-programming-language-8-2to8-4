@@ -65,7 +65,12 @@ int _flushbuf(int c, FILE *fp)
 		--fp->cnt;
 	}
 
-	return (unsigned char) *fp->ptr; /* TODO: figure out something better to return */
+	return 0; /* TODO: figure out something better to return */
+}
+
+int fflush(FILE *fp)
+{
+	return _flushbuf(EOF, fp);
 }
 
 /* initializes stdin, stdout, and stderr */
