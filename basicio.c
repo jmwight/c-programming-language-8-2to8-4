@@ -59,10 +59,6 @@ int _flushbuf(int c, FILE *fp)
 	fp->ptr = fp->base;
 
 	/* add the last character that didn't fit into buffer before  */
-	/* XXX: when we write our fclose function we will need to remember to run _flushbuf
-	 * twice! This extra character is added to new buffer not written immediately. This will
-	 * probably be faster in long run than running two write commands back to back just to get
-	 * out that extra character but need to remember this! */
 	if(c != EOF)
 		*fp->ptr++ = c;
 
